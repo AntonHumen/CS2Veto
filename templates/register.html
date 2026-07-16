@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Реєстрація</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Реєстрація</h2>
+
+    <form method="POST">
+        <input type="text" name="username" placeholder="Логін" required>
+        <input type="password" name="password" placeholder="Пароль" required>
+
+        <button type="submit" class="register-btn">
+            Зареєструватися
+        </button>
+    </form>
+
+    <br>
+
+    <a href="/login">Вже є акаунт?</a>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>CS2 Map Veto (BO3)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <h2>CS2 Map Veto</h2>
+    <div class="user-info">
+        <span>Користувач: <strong>{{ user }}</strong></span>
+        <a href="/logout" class="logout-link">Вийти</a>
+    </div>
+</div>
+
+<div class="container main-menu">
+    <h1>Турнірне Вето (BO3)</h1>
+
+    <!-- Інформаційне табло стану черги -->
+    <div class="status-banner">
+        <span id="current-action">Завантаження...</span>
+    </div>
+
+    <!-- Результати вибору -->
+    <div class="veto-results" id="results-panel" style="display: none;">
+        <div class="result-box pick-a"><strong>Пік Команди А:</strong> <span id="pick-a-name">-</span></div>
+        <div class="result-box pick-b"><strong>Пік Команди Б:</strong> <span id="pick-b-name">-</span></div>
+        <div class="result-box decider"><strong>Десайдер (Map 3):</strong> <span id="decider-name">-</span></div>
+    </div>
+
+    <div class="maps-list">
+        {% for map in maps %}
+        <!-- Передаємо у функцію назву карти map[1] -->
+        <div class="map-strip" data-map-name="{{ map[1] }}" onclick="processVeto(this)">
+            <div class="map-bg" style="background-image: url('{{ url_for('static', filename='images/' + map[3]) }}');"></div>
+            <div class="map-overlay">
+                <div class="map-name-box">
+                    <h3>{{ map[1] }}</h3>
+                </div>
+                <div class="status-text animate-text"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <br><br>
+    <button class="logout-btn" onclick="resetVeto()" style="background: #6c757d; margin-right: 10px;">Скинути вето</button>
+    <a href="/logout"><button class="logout-btn">Вийти</button></a>
+</div>
+
+<script>
+
+const vetoSteps = [
+    { team: "Команда А", action: "ban", text: "Команда А БАНИТЬ карту" },
+    { team: "Команда Б", action: "ban", text: "Команда Б БАНИТЬ карту" },
+    { team: "Команда А", action: "pick", text: "Команда А ПІКАЄ карту (Мапа 1)" },
+    { team: "Команда Б", action: "pick", text: "Команда Б ПІКАЄ карту (Мапа 2)" },
+    { team: "Команда А", action: "ban", text: "Команда А БАНИТЬ карту" },
+    { team: "Команда Б", action: "ban", text: "Команда Б БАНИТЬ карту" }
+];
+
+let currentStepIndex = 0;
+let pickedMaps = { a: null, b: null, decider: null };
+
+function updateStatusBanner() {
+    const banner = document.getElementById("current-action");
+    if (currentStepIndex < vetoSteps.length) {
+        banner.textContent = vetoSteps[currentStepIndex].text;
+        banner.parentElement.className = "status-banner " + (vetoSteps[currentStepIndex].team === "Команда А" ? "team-a-turn" : "team-b-turn");
+    } else {
+        banner.textContent = "ВЕТО ЗАВЕРШЕНО!";
+        banner.parentElement.className = "status-banner veto-ended";
+        determineDecider();
+    }
+}
+
+function processVeto(card) {
+    if (card.classList.contains('banned') || card.classList.contains('picked') || currentStepIndex >= vetoSteps.length) {
+        return;
+    }
+
+    const currentStep = vetoSteps[currentStepIndex];
+    const mapName = card.getAttribute('data-map-name');
+    const statusTextEl = card.querySelector('.status-text');
+
+    document.getElementById("results-panel").style.display = "flex";
+
+    if (currentStep.action === "ban") {
+        card.classList.add('banned');
+        statusTextEl.textContent = "ЗАБАНЕНО";
+    } else if (currentStep.action === "pick") {
+        card.classList.add('picked');
+        if (currentStep.team === "Команда А") {
+            card.classList.add('team-a-pick');
+            statusTextEl.textContent = "ПІК КОМАНДИ А";
+            document.getElementById("pick-a-name").textContent = mapName;
+            pickedMaps.a = mapName;
+        } else {
+            card.classList.add('team-b-pick');
+            statusTextEl.textContent = "ПІК КОМАНДИ Б";
+            document.getElementById("pick-b-name").textContent = mapName;
+            pickedMaps.b = mapName;
+        }
+    }
+
+    currentStepIndex++;
+    updateStatusBanner();
+}
+
+function determineDecider() {
+    const allCards = document.querySelectorAll('.map-strip');
+    let deciderCard = null;
+
+    allCards.forEach(card => {
+        if (!card.classList.contains('banned') && !card.classList.contains('picked')) {
+            deciderCard = card;
+        }
+    });
+
+    if (deciderCard) {
+        deciderCard.classList.add('decider-pick');
+        const mapName = deciderCard.getAttribute('data-map-name');
+        deciderCard.querySelector('.status-text').textContent = "ДЕСАЙДЕР (MAP 3)";
+        document.getElementById("decider-name").textContent = mapName;
+    }
+}
+
+function resetVeto() {
+    currentStepIndex = 0;
+    pickedMaps = { a: null, b: null, decider: null };
+
+    document.getElementById("results-panel").style.display = "none";
+    document.getElementById("pick-a-name").textContent = "-";
+    document.getElementById("pick-b-name").textContent = "-";
+    document.getElementById("decider-name").textContent = "-";
+
+    const allCards = document.querySelectorAll('.map-strip');
+    allCards.forEach(card => {
+        card.className = "map-strip";
+        card.querySelector('.status-text').textContent = "";
+    });
+
+    updateStatusBanner();
+}
+
+window.onload = updateStatusBanner;
+</script>
+
+</body>
+</html>
