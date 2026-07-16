@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, redirect, render_template, request, session
+from flask import Flask, redirect, render_template, request, session, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -84,9 +84,11 @@ def register():
             )
             conn.commit()
             conn.close()
+            flash("Реєстрація успішна! Тепер увійдіть.", "success")
             return redirect("/login")
         except:
-            return "Користувач уже існує!"
+            flash("Користувач з таким логіном уже існує!", "error")
+            return redirect("/register")
 
     return render_template("register.html")
 
@@ -107,7 +109,8 @@ def login():
             session["user"] = username
             return redirect("/")
 
-        return "Невірний логін або пароль!"
+        flash("Невірний логін або пароль!", "error")
+        return redirect("/login")
 
     return render_template("login.html")
 

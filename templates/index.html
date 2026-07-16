@@ -18,12 +18,10 @@
 <div class="container main-menu">
     <h1>Турнірне Вето (BO3)</h1>
 
-    <!-- Інформаційне табло стану черги -->
     <div class="status-banner">
         <span id="current-action">Завантаження...</span>
     </div>
 
-    <!-- Результати вибору -->
     <div class="veto-results" id="results-panel" style="display: none;">
         <div class="result-box pick-a"><strong>Пік Команди А:</strong> <span id="pick-a-name">-</span></div>
         <div class="result-box pick-b"><strong>Пік Команди Б:</strong> <span id="pick-b-name">-</span></div>
@@ -32,7 +30,6 @@
 
     <div class="maps-list">
         {% for map in maps %}
-        <!-- Передаємо у функцію назву карти map[1] -->
         <div class="map-strip" data-map-name="{{ map[1] }}" onclick="processVeto(this)">
             <div class="map-bg" style="background-image: url('{{ url_for('static', filename='images/' + map[3]) }}');"></div>
             <div class="map-overlay">
