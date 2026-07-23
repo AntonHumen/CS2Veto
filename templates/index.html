@@ -23,8 +23,8 @@
     </div>
 
     <div class="veto-results" id="results-panel" style="display: none;">
-        <div class="result-box pick-a"><strong>Пік Команди А:</strong> <span id="pick-a-name">-</span></div>
-        <div class="result-box pick-b"><strong>Пік Команди Б:</strong> <span id="pick-b-name">-</span></div>
+        <div class="result-box pick-a"><strong>Пік {{ team_a }}:</strong> <span id="pick-a-name">-</span></div>
+        <div class="result-box pick-b"><strong>Пік {{ team_b }}:</strong> <span id="pick-b-name">-</span></div>
         <div class="result-box decider"><strong>Десайдер (Map 3):</strong> <span id="decider-name">-</span></div>
     </div>
 
@@ -44,18 +44,21 @@
 
     <br><br>
     <button class="logout-btn" onclick="resetVeto()" style="background: #6c757d; margin-right: 10px;">Скинути вето</button>
+    <a href="/setup"><button class="logout-btn" style="background: #ff9f00; margin-right: 10px;">Змінити команди</button></a>
     <a href="/logout"><button class="logout-btn">Вийти</button></a>
 </div>
 
 <script>
+const teamA = "{{ team_a }}";
+const teamB = "{{ team_b }}";
 
 const vetoSteps = [
-    { team: "Команда А", action: "ban", text: "Команда А БАНИТЬ карту" },
-    { team: "Команда Б", action: "ban", text: "Команда Б БАНИТЬ карту" },
-    { team: "Команда А", action: "pick", text: "Команда А ПІКАЄ карту (Мапа 1)" },
-    { team: "Команда Б", action: "pick", text: "Команда Б ПІКАЄ карту (Мапа 2)" },
-    { team: "Команда А", action: "ban", text: "Команда А БАНИТЬ карту" },
-    { team: "Команда Б", action: "ban", text: "Команда Б БАНИТЬ карту" }
+    { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
+    { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` },
+    { team: teamA, action: "pick", text: `${teamA} ПІКАЮТЬ карту (Мапа 1)` },
+    { team: teamB, action: "pick", text: `${teamB} ПІКАЮТЬ карту (Мапа 2)` },
+    { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
+    { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` }
 ];
 
 let currentStepIndex = 0;
@@ -65,7 +68,7 @@ function updateStatusBanner() {
     const banner = document.getElementById("current-action");
     if (currentStepIndex < vetoSteps.length) {
         banner.textContent = vetoSteps[currentStepIndex].text;
-        banner.parentElement.className = "status-banner " + (vetoSteps[currentStepIndex].team === "Команда А" ? "team-a-turn" : "team-b-turn");
+        banner.parentElement.className = "status-banner " + (vetoSteps[currentStepIndex].team === teamA ? "team-a-turn" : "team-b-turn");
     } else {
         banner.textContent = "ВЕТО ЗАВЕРШЕНО!";
         banner.parentElement.className = "status-banner veto-ended";
@@ -89,14 +92,14 @@ function processVeto(card) {
         statusTextEl.textContent = "ЗАБАНЕНО";
     } else if (currentStep.action === "pick") {
         card.classList.add('picked');
-        if (currentStep.team === "Команда А") {
+        if (currentStep.team === teamA) {
             card.classList.add('team-a-pick');
-            statusTextEl.textContent = "ПІК КОМАНДИ А";
+            statusTextEl.textContent = `ПІК ${teamA.toUpperCase()}`;
             document.getElementById("pick-a-name").textContent = mapName;
             pickedMaps.a = mapName;
         } else {
             card.classList.add('team-b-pick');
-            statusTextEl.textContent = "ПІК КОМАНДИ Б";
+            statusTextEl.textContent = `ПІК ${teamB.toUpperCase()}`;
             document.getElementById("pick-b-name").textContent = mapName;
             pickedMaps.b = mapName;
         }

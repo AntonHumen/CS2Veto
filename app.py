@@ -1,5 +1,5 @@
 import sqlite3
-from flask import Flask, redirect, render_template, request, session, flash
+from flask import Flask, flash, redirect, render_template, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -53,10 +53,12 @@ def init_db():
 
 init_db()
 
-
 @app.route("/")
 def index():
     if "user" in session:
+        if "team_a" not in session or "team_b" not in session:
+            return redirect("/setup")
+
         conn = sqlite3.connect("users.db")
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM maps")
@@ -64,9 +66,33 @@ def index():
         conn.close()
 
         return render_template(
-            "index.html", user=session["user"], maps=maps_data
+            "index.html",
+            user=session["user"],
+            maps=maps_data,
+            team_a=session["team_a"],
+            team_b=session["team_b"],
         )
     return redirect("/login")
+
+
+@app.route("/setup", methods=["GET", "POST"])
+def setup():
+    if "user" not in session:
+        return redirect("/login")
+
+    if request.method == "POST":
+        team_a = request.form.get("team_a", "").strip()
+        team_b = request.form.get("team_b", "").strip()
+
+        if not team_a or not team_b:
+            flash("Введіть назви обох команд!", "error")
+            return redirect("/setup")
+
+        session["team_a"] = team_a
+        session["team_b"] = team_b
+        return redirect("/")
+
+    return render_template("setup.html")
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -107,7 +133,7 @@ def login():
 
         if user and check_password_hash(user[2], password):
             session["user"] = username
-            return redirect("/")
+            return redirect("/setup")
 
         flash("Невірний логін або пароль!", "error")
         return redirect("/login")
@@ -117,7 +143,7 @@ def login():
 
 @app.route("/logout")
 def logout():
-    session.pop("user", None)
+    session.clear()
     return redirect("/login")
 
 

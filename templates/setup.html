@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Налаштування команд</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h2>Налаштування матчу</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/setup">
+        <input type="text" name="team_a" placeholder="Назва Команди А" required autofocus>
+        <input type="text" name="team_b" placeholder="Назва Команди Б" required>
+
+        <button type="submit" class="login-btn">
+            Розпочати вето
+        </button>
+    </form>
+
+    <br>
+
+    <a href="/logout">Вийти з акаунту</a>
+
+</div>
+
+</body>
+</html>

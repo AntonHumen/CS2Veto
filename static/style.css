@@ -198,6 +198,7 @@ a:hover {
 
 .status-banner {
     width: 100%;
+    box-sizing: border-box;
     padding: 15px;
     margin-bottom: 20px;
     border-radius: 6px;
@@ -345,4 +346,45 @@ a:hover {
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-content {
+    background: #242424;
+    border: 1px solid #444;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    width: 360px;
+}
+
+.navbar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    left: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-info span {
+    margin-right: 15px;
+}
+
+.logout-link {
+    color: #ff4d5a;
+    font-weight: bold;
 }
