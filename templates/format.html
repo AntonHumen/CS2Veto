@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>CS2 Map Veto — Вибір формату</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="navbar">
+    <h2>CS2 Map Veto</h2>
+    <div class="user-info">
+        <span>Користувач: <strong>{{ session.get('user', '') }}</strong></span>
+        <a href="/logout" class="logout-link">Вийти</a>
+    </div>
+</div>
+
+<div class="app-card">
+    <div class="steps-bar">
+        <div class="step-item active">
+            <span class="step-dot"></span>
+            <span class="step-text">Крок 1: Формат</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item">
+            <span class="step-dot"></span>
+            <span class="step-text">Крок 2: Команди</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item">
+            <span class="step-dot"></span>
+            <span class="step-text">Крок 3: Вето</span>
+        </div>
+    </div>
+
+    <h1 class="page-title">Select Best of</h1>
+    <p class="page-subtitle">↓ Оберіть формат матчу: Best of 1, 3 або 5 ↓</p>
+
+    <form method="POST" action="/format" id="format-form">
+        <input type="hidden" name="match_format" id="selected-format" value="bo3">
+
+        <div class="bo-grid">
+            <div class="bo-card" onclick="submitFormat('bo1')">
+                <div class="star-square">
+                    <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <div class="bo-number">1</div>
+            </div>
+
+            <div class="bo-card" onclick="submitFormat('bo3')">
+                <div class="star-square">
+                    <div class="stars-group three-stars">
+                        <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                </div>
+                <div class="bo-number">3</div>
+            </div>
+
+            <div class="bo-card" onclick="submitFormat('bo5')">
+                <div class="star-square">
+                    <div class="stars-group five-stars">
+                        <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                        <svg class="star-icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    </div>
+                </div>
+                <div class="bo-number">5</div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+function submitFormat(value) {
+    document.getElementById('selected-format').value = value;
+    document.getElementById('format-form').submit();
+}
+</script>
+
+</body>
+</html>

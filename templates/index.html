@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>CS2 Map Veto (BO3)</title>
+    <title>CS2 Map Veto ({{ match_format.upper() }})</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -16,16 +16,16 @@
 </div>
 
 <div class="container main-menu">
-    <h1>Турнірне Вето (BO3)</h1>
+    <h1>Турнірне Вето ({{ match_format.upper() }})</h1>
 
     <div class="status-banner">
         <span id="current-action">Завантаження...</span>
     </div>
 
     <div class="veto-results" id="results-panel" style="display: none;">
-        <div class="result-box pick-a"><strong>Пік {{ team_a }}:</strong> <span id="pick-a-name">-</span></div>
-        <div class="result-box pick-b"><strong>Пік {{ team_b }}:</strong> <span id="pick-b-name">-</span></div>
-        <div class="result-box decider"><strong>Десайдер (Map 3):</strong> <span id="decider-name">-</span></div>
+        <div class="result-box pick-a"><strong>Піки {{ team_a }}:</strong> <span id="pick-a-name">-</span></div>
+        <div class="result-box pick-b"><strong>Піки {{ team_b }}:</strong> <span id="pick-b-name">-</span></div>
+        <div class="result-box decider"><strong>Десайдер:</strong> <span id="decider-name">-</span></div>
     </div>
 
     <div class="maps-list">
@@ -44,25 +44,60 @@
 
     <br><br>
     <button class="logout-btn" onclick="resetVeto()" style="background: #6c757d; margin-right: 10px;">Скинути вето</button>
-    <a href="/setup"><button class="logout-btn" style="background: #ff9f00; margin-right: 10px;">Змінити команди</button></a>
+    <a href="/format"><button class="logout-btn" style="background: #ff9f00; margin-right: 10px;">Змінити формат/команди</button></a>
     <a href="/logout"><button class="logout-btn">Вийти</button></a>
 </div>
 
 <script>
 const teamA = "{{ team_a }}";
 const teamB = "{{ team_b }}";
+const matchFormat = "{{ match_format }}";
 
-const vetoSteps = [
-    { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
-    { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` },
-    { team: teamA, action: "pick", text: `${teamA} ПІКАЮТЬ карту (Мапа 1)` },
-    { team: teamB, action: "pick", text: `${teamB} ПІКАЮТЬ карту (Мапа 2)` },
-    { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
-    { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` }
-];
+// Генерація кроків вето залежно від формату
+function getVetoSteps() {
+    if (matchFormat === "bo1") {
+        return [
+            { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
+            { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` },
+            { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
+            { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` },
+            { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
+            { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` }
+        ];
+    } else if (matchFormat === "bo2") {
+        return [
+            { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
+            { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` },
+            { team: teamA, action: "pick", text: `${teamA} ПІКАЮТЬ карту (Мапа 1)` },
+            { team: teamB, action: "pick", text: `${teamB} ПІКАЮТЬ карту (Мапа 2)` },
+            { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
+            { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` }
+        ];
+    } else if (matchFormat === "bo5") {
+        return [
+            { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
+            { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` },
+            { team: teamA, action: "pick", text: `${teamA} ПІКАЮТЬ карту (Мапа 1)` },
+            { team: teamB, action: "pick", text: `${teamB} ПІКАЮТЬ карту (Мапа 2)` },
+            { team: teamA, action: "pick", text: `${teamA} ПІКАЮТЬ карту (Мапа 3)` },
+            { team: teamB, action: "pick", text: `${teamB} ПІКАЮТЬ карту (Мапа 4)` }
+        ];
+    } else { // BO3 default
+        return [
+            { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
+            { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` },
+            { team: teamA, action: "pick", text: `${teamA} ПІКАЮТЬ карту (Мапа 1)` },
+            { team: teamB, action: "pick", text: `${teamB} ПІКАЮТЬ карту (Мапа 2)` },
+            { team: teamA, action: "ban", text: `${teamA} БАНЯТЬ карту` },
+            { team: teamB, action: "ban", text: `${teamB} БАНЯТЬ карту` }
+        ];
+    }
+}
 
+const vetoSteps = getVetoSteps();
 let currentStepIndex = 0;
-let pickedMaps = { a: null, b: null, decider: null };
+let picksA = [];
+let picksB = [];
 
 function updateStatusBanner() {
     const banner = document.getElementById("current-action");
@@ -95,13 +130,13 @@ function processVeto(card) {
         if (currentStep.team === teamA) {
             card.classList.add('team-a-pick');
             statusTextEl.textContent = `ПІК ${teamA.toUpperCase()}`;
-            document.getElementById("pick-a-name").textContent = mapName;
-            pickedMaps.a = mapName;
+            picksA.push(mapName);
+            document.getElementById("pick-a-name").textContent = picksA.join(", ");
         } else {
             card.classList.add('team-b-pick');
             statusTextEl.textContent = `ПІК ${teamB.toUpperCase()}`;
-            document.getElementById("pick-b-name").textContent = mapName;
-            pickedMaps.b = mapName;
+            picksB.push(mapName);
+            document.getElementById("pick-b-name").textContent = picksB.join(", ");
         }
     }
 
@@ -122,14 +157,17 @@ function determineDecider() {
     if (deciderCard) {
         deciderCard.classList.add('decider-pick');
         const mapName = deciderCard.getAttribute('data-map-name');
-        deciderCard.querySelector('.status-text').textContent = "ДЕСАЙДЕР (MAP 3)";
+        deciderCard.querySelector('.status-text').textContent = matchFormat === "bo1" ? "ОСНОВНА КАРТА" : "ДЕСАЙДЕР";
         document.getElementById("decider-name").textContent = mapName;
+    } else {
+        document.getElementById("decider-name").textContent = "Немає (всі пікані)";
     }
 }
 
 function resetVeto() {
     currentStepIndex = 0;
-    pickedMaps = { a: null, b: null, decider: null };
+    picksA = [];
+    picksB = [];
 
     document.getElementById("results-panel").style.display = "none";
     document.getElementById("pick-a-name").textContent = "-";

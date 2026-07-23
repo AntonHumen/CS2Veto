@@ -2,14 +2,39 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <title>Налаштування команд</title>
+    <title>CS2 Map Veto — Команди</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<div class="container">
+<div class="navbar">
+    <h2>CS2 Map Veto</h2>
+    <div class="user-info">
+        <span>Користувач: <strong>{{ session.get('user', '') }}</strong></span>
+        <a href="/logout" class="logout-link">Вийти</a>
+    </div>
+</div>
 
-    <h2>Налаштування матчу</h2>
+<div class="app-card">
+    <div class="steps-bar">
+        <div class="step-item completed">
+            <span class="step-dot"></span>
+            <span class="step-text">Крок 1: Формат</span>
+        </div>
+        <div class="step-line filled"></div>
+        <div class="step-item active">
+            <span class="step-dot"></span>
+            <span class="step-text">Крок 2: Команди</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item">
+            <span class="step-dot"></span>
+            <span class="step-text">Крок 3: Вето</span>
+        </div>
+    </div>
+
+    <h1 class="page-title">Налаштування команд</h1>
+    <p class="page-subtitle">Обраний формат: <strong>{{ match_format.upper() }}</strong></p>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -19,19 +44,22 @@
         {% endif %}
     {% endwith %}
 
-    <form method="POST" action="/setup">
-        <input type="text" name="team_a" placeholder="Назва Команди А" required autofocus>
-        <input type="text" name="team_b" placeholder="Назва Команди Б" required>
+    <form method="POST" action="/setup" class="form-box">
+        <div class="input-group">
+            <label>Команда А</label>
+            <input type="text" name="team_a" placeholder="Введіть назву першої команди" required autofocus>
+        </div>
 
-        <button type="submit" class="login-btn">
-            Розпочати вето
-        </button>
+        <div class="input-group">
+            <label>Команда Б</label>
+            <input type="text" name="team_b" placeholder="Введіть назву другої команди" required>
+        </div>
+
+        <div class="button-group">
+            <a href="/format" class="action-btn btn-secondary">← Назад</a>
+            <button type="submit" class="action-btn btn-primary">Далі до вето →</button>
+        </div>
     </form>
-
-    <br>
-
-    <a href="/logout">Вийти з акаунту</a>
-
 </div>
 
 </body>

@@ -53,9 +53,12 @@ def init_db():
 
 init_db()
 
+
 @app.route("/")
 def index():
     if "user" in session:
+        if "match_format" not in session:
+            return redirect("/format")
         if "team_a" not in session or "team_b" not in session:
             return redirect("/setup")
 
@@ -71,8 +74,22 @@ def index():
             maps=maps_data,
             team_a=session["team_a"],
             team_b=session["team_b"],
+            match_format=session["match_format"],
         )
     return redirect("/login")
+
+
+@app.route("/format", methods=["GET", "POST"])
+def select_format():
+    if "user" not in session:
+        return redirect("/login")
+
+    if request.method == "POST":
+        selected = request.form.get("match_format", "bo3")
+        session["match_format"] = selected
+        return redirect("/setup")
+
+    return render_template("format.html")
 
 
 @app.route("/setup", methods=["GET", "POST"])
@@ -92,7 +109,7 @@ def setup():
         session["team_b"] = team_b
         return redirect("/")
 
-    return render_template("setup.html")
+    return render_template("setup.html", match_format=session.get("match_format", "bo3"))
 
 
 @app.route("/register", methods=["GET", "POST"])
@@ -133,7 +150,7 @@ def login():
 
         if user and check_password_hash(user[2], password):
             session["user"] = username
-            return redirect("/setup")
+            return redirect("/format")
 
         flash("Невірний логін або пароль!", "error")
         return redirect("/login")
